@@ -1,16 +1,33 @@
-from pydantic import BaseModel, Field
-
-class ProfileOut(BaseModel):
-    bio: str
-    department: str
-    level: str
-    availability: str
-    github_username: str
-    credibility_score: int
+from pydantic import BaseModel
 
 class ProfileUpdateIn(BaseModel):
-    bio: str | None = Field(default=None, max_length=800)
-    department: str | None = Field(default=None, max_length=120)
-    level: str | None = Field(default=None, max_length=60)
-    availability: str | None = Field(default=None, max_length=60)
-    github_username: str | None = Field(default=None, max_length=120)
+    full_name: str | None = None
+    headline: str | None = None
+    bio: str | None = None
+    location: str | None = None
+    experience_years: int | None = None
+    tags: list[str] | None = None
+    github_username: str | None = None
+
+class UserSkillOut(BaseModel):
+    skill_id: str
+    name: str
+    level: int
+
+class FileOut(BaseModel):
+    id: str
+    kind: str
+    filename: str
+    url: str | None = None
+
+class ProfileOut(BaseModel):
+    full_name: str | None = None
+    headline: str | None = None
+    bio: str | None = None
+    location: str | None = None
+    experience_years: int | None = None
+    tags: list[str] | None = None
+    github_username: str | None = None
+
+    skills: list[UserSkillOut] = []
+    files: list[FileOut] = []

@@ -1,29 +1,36 @@
-type Listener = () => void;
+
+import { create } from "zustand";
+
+export type AuthUser = {
+  id?: string;
+  email?: string;
+  full_name?: string;
+  role?: string;
+  permissions?: string[];
+};
 
 type AuthState = {
-  token: string | null;
-  setToken: (t: string | null) => void;
-  subscribe: (fn: Listener) => () => void;
+  accessToken: string | null;
+  user: AuthUser | null;
+
+  setAuth: (token: string, user?: AuthUser | null) => void;
+  setUser: (user: AuthUser | null) => void;
+  clearAuth: () => void;
 };
 
-const listeners = new Set<Listener>();
+export const useAuthStore = create<AuthState>((set) => ({
+  accessToken: localStorage.getItem("access_token"),
+  user: null,
 
-const state: AuthState = {
-  token: localStorage.getItem("access_token"),
-  setToken(t) {
-    state.token = t;
-    if (t) localStorage.setItem("access_token", t);
-    else localStorage.removeItem("access_token");
-    listeners.forEach((l) => l());
+  setAuth: (token, user = null) => {
+    localStorage.setItem("access_token", token);
+    set({ accessToken: token, user });
   },
-  subscribe(fn) {
-    listeners.add(fn);
-    return () => listeners.delete(fn);
+
+  setUser: (user) => set({ user }),
+
+  clearAuth: () => {
+    localStorage.removeItem("access_token");
+    set({ accessToken: null, user: null });
   },
-};
-
-export function useAuthStoreSnapshot() {
-  return { token: state.token, setToken: state.setToken };
-}
-
-export const authStore = state;
+}));

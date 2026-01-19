@@ -1,29 +1,65 @@
-import { api } from "./api";
+import { apiFetch } from "./api";
+import { useAuthStore } from "../store/authStore";
 
-export async function register(email: string, password: string, full_name: string) {
-  return api<{ message: string }>("/auth/register", {
-    method: "POST",
-    body: JSON.stringify({ email, password, full_name }),
-  });
-}
+export type AuthUser = {
+  id: string;
+  email: string;
+  full_name?: string;
+  role: string;
+  permissions: string[];
+};
 
-export async function login(email: string, password: string) {
-  const out = await api<{ access_token: string; refresh_token: string; token_type: string }>(
-    "/auth/login",
-    { method: "POST", body: JSON.stringify({ email, password }) }
-  );
-  localStorage.setItem("access_token", out.access_token);
-  localStorage.setItem("refresh_token", out.refresh_token);
-  return out;
+type AuthOut = {
+  access_token: string;
+  user: AuthUser;
+};
+
+export function isAuthed() {
+  return !!localStorage.getItem("access_token");
 }
 
 export function logout() {
-  localStorage.removeItem("access_token");
-  localStorage.removeItem("refresh_token");
+  useAuthStore.getState().clearAuth();
 }
 
-export async function me() {
-  return api<{ id: string; email: string; full_name: string; role: string; perms: string[] }>(
-    "/auth/me"
-  );
+/**
+ * backend: POST /auth/login
+ * payload: { email, password }
+ */
+export async function login(email: string, password: string) {
+  const data = await apiFetch<AuthOut>("/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+  });
+
+  useAuthStore.getState().setAuth(data.access_token, data.user);
+  return data;
+}
+
+/**
+ * backend: POST /auth/register
+ * payload: { email, password, full_name? }
+ */
+export async function register(email: string, password: string, fullName?: string) {
+  const payload: { email: string; password: string; full_name?: string } = { email, password };
+
+  const clean = fullName?.trim();
+  if (clean) payload.full_name = clean;
+
+  const data = await apiFetch<AuthOut>("/auth/register", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
+  useAuthStore.getState().setAuth(data.access_token, data.user);
+  return data;
+}
+
+/**
+ * backend: GET /auth/me
+ */
+export async function fetchMe() {
+  const user = await apiFetch<AuthUser>("/auth/me");
+  useAuthStore.getState().setUser(user);
+  return user;
 }

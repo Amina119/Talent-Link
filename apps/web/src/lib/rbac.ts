@@ -1,37 +1,15 @@
-import { decodeJwt } from "./jwt";
+import { useAuthStore } from "../store/authStore";
 
-/**
- * Récupère la liste des permissions depuis le token JWT
- */
-export function getPerms(): string[] {
-  const t = localStorage.getItem("access_token");
-  if (!t) return [];
-  // Le cast 'as any' évite les erreurs de typage si l'interface du token n'est pas définie
-  const decoded = decodeJwt(t) as any;
-  return decoded?.perms ?? [];
+export function getRole() {
+  return useAuthStore.getState().user?.role || "user";
 }
 
-/**
- * Vérifie si l'utilisateur possède une permission spécifique
- */
-export function hasPerm(code: string): boolean {
-  const perms = getPerms();
-  return Array.isArray(perms) && perms.includes(code);
+export function hasPerm(perm: string) {
+  const perms = useAuthStore.getState().user?.permissions || [];
+  return perms.includes(perm);
 }
 
-/**
- * Récupère le rôle de l'utilisateur (admin, user, guest, etc.)
- */
-export function getRole(): string {
-  const t = localStorage.getItem("access_token");
-  if (!t) return "guest";
-  const decoded = decodeJwt(t) as any;
-  return decoded?.role ?? "user";
-}
-
-/**
- * Helper rapide pour vérifier si l'utilisateur est administrateur
- */
-export function isAdmin(): boolean {
-  return getRole() === "admin";
+export function isAdmin() {
+  const role = getRole();
+  return role === "admin" || hasPerm("admin:all");
 }

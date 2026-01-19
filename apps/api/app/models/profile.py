@@ -1,20 +1,43 @@
-from sqlalchemy import String, Integer, DateTime, func, ForeignKey
+import uuid
+
+from sqlalchemy import ForeignKey, String, Integer, Text, JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from app.db.base import Base
+
 
 class Profile(Base):
     __tablename__ = "profiles"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), unique=True, index=True)
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        String(36),
+        ForeignKey("users.id"),
+        primary_key=True,
+        nullable=False,
+    )
 
-    bio: Mapped[str] = mapped_column(String(800), default="", nullable=False)
-    department: Mapped[str] = mapped_column(String(120), default="", nullable=False)
-    level: Mapped[str] = mapped_column(String(60), default="", nullable=False)
-    availability: Mapped[str] = mapped_column(String(60), default="available", nullable=False)
-    github_username: Mapped[str] = mapped_column(String(120), default="", nullable=False)
+    headline: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    bio: Mapped[str | None] = mapped_column(Text, nullable=True)
+    location: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    experience_years: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
-    credibility_score: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
-    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    tags: Mapped[list[str]] = mapped_column(
+        JSON,
+        default=list,
+        nullable=False,
+    )
 
-    user = relationship("User", back_populates="profile")
+    github_username: Mapped[str | None] = mapped_column(String(120), nullable=True)
+
+    skills = relationship(
+        "UserSkill",
+        back_populates="profile",
+        cascade="all, delete-orphan",
+    )
+
+    files = relationship(
+        "FileAsset",
+        back_populates="profile",
+        cascade="all, delete-orphan",
+    )
+

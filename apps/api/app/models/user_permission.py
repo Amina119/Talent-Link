@@ -1,14 +1,25 @@
-from sqlalchemy import ForeignKey, String, UniqueConstraint
+import uuid
+from sqlalchemy import String, ForeignKey
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
 
 class UserPermission(Base):
     __tablename__ = "user_permissions"
-    __table_args__ = (UniqueConstraint("user_id", "permission_code", name="uq_user_perm"),)
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
-    permission_code: Mapped[str] = mapped_column(ForeignKey("permissions.code"), String(64), index=True)
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id"),
+        primary_key=True,
+        nullable=False,
+    )
 
-    user = relationship("User", back_populates="permissions")
+    permission_code: Mapped[str] = mapped_column(
+        String(64),
+        ForeignKey("permissions.code"),
+        primary_key=True,
+        index=True,
+        nullable=False,
+    )
+
     permission = relationship("Permission")

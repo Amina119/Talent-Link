@@ -20,7 +20,7 @@ export const ROUTES = {
     talents: "/app/talents",
     projects: "/app/projects",
     teams: "/app/teams",
-    messages: "Messages",
+    messages: "/app/Messages",
     notifications: "/app/notifications",
     assessments: "/app/assessments",
     feedback: "/app/feedback",

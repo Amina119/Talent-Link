@@ -1,105 +1,90 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Button from "../../components/ui/Button";
-import Input from "../../components/ui/Input";
+import { Button } from "../../components/ui/Button";
 import { login } from "../../lib/auth";
-import { validerLogin } from "../../lib/validators";
-import { messageErreurFR } from "../../lib/errors";
-import { useUIStore } from "../../store/uiStore";
 import { ROUTES } from "../../lib/constants";
 
 export default function Login() {
-  const nav = useNavigate();
-  const addToast = useUIStore((state) => state.addToast);
-  
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
-  async function handleLogin(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    
-    const validation = validerLogin(email, password);
-    if (!validation.ok) {
-      setErr(validation.message);
-      return;
-    }
-
+    setError(null);
+    setLoading(true);
     try {
-      setLoading(true);
-      setErr("");
-      
-      await login(email, password);
-      
-      addToast("Connexion réussie ✅", "success");
-      nav(ROUTES.app.dashboard);
-      
-    } catch (error) {
-  
-      const msg = messageErreurFR(error);
-      setErr(msg);
-      addToast(msg, "error");
+      await login(email.trim().toLowerCase(), password);
+      navigate(ROUTES.app.dashboard);
+    } catch (err: any) {
+      setError(err?.message ?? "Erreur de connexion");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="mx-auto max-w-md px-6 py-16 text-white">
-      <div className="text-center mb-8">
-        <h2 className="font-display text-4xl font-bold">Bon retour</h2>
-        <p className="mt-2 text-white/60">Ravi de vous revoir sur TalentLink.</p>
-      </div>
+    <div className="min-h-screen bg-black text-white flex items-center justify-center px-4">
+      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur">
+        <div className="mb-6">
+          <h1 className="text-2xl font-semibold">Connexion</h1>
+          <p className="mt-1 text-sm text-white/70">Accède à ton espace TalentLink.</p>
+        </div>
 
-      <form 
-        onSubmit={handleLogin}
-        className="space-y-5 rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-sm"
-      >
-        {err && (
-          <div className="rounded-xl bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-400 animate-in fade-in zoom-in-95">
-            {err}
+        {error && (
+          <div className="mb-4 rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-200">
+            {error}
           </div>
         )}
 
-        <Input 
-          label="Adresse e-mail" 
-          placeholder="nom@exemple.com" 
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)} 
-          required
-        />
+        <form onSubmit={onSubmit} className="space-y-3">
+          <label className="block">
+            <span className="text-xs text-white/70">Email</span>
+            <input
+              className="mt-1 w-full rounded-xl border border-white/15 bg-black/40 px-4 py-3 text-sm outline-none focus:border-blue-500/40"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              type="email"
+              placeholder="you@mail.com"
+              required
+            />
+          </label>
 
-        <Input 
-          label="Mot de passe" 
-          type="password" 
-          placeholder="••••••••" 
-          value={password}
-          onChange={(e) => setPassword(e.target.value)} 
-          required
-        />
+          <label className="block">
+            <span className="text-xs text-white/70">Mot de passe</span>
+            <input
+              className="mt-1 w-full rounded-xl border border-white/15 bg-black/40 px-4 py-3 text-sm outline-none focus:border-blue-500/40"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              type="password"
+              placeholder="••••••••"
+              required
+            />
+          </label>
 
-        <div className="pt-2">
-          <Button 
-            className="w-full" 
-            loading={loading} 
-            type="submit"
-          >
-            Se connecter
+          <Button className="w-full" disabled={loading}>
+            {loading ? "Connexion..." : "Sign in"}
           </Button>
-        </div>
+        </form>
 
-        <p className="text-center text-sm text-white/50">
-          Pas encore de compte ?{" "}
-          <Link 
-            className="text-cyan-400 hover:text-cyan-300 font-medium transition-colors" 
-            to={ROUTES.auth.register}
-          >
+        <div className="mt-4 flex items-center justify-between text-sm">
+          <Link to={ROUTES.auth.reset} className="text-white/70 hover:text-white">
+            Mot de passe oublié ?
+          </Link>
+          <Link to={ROUTES.auth.register} className="text-blue-400 hover:text-blue-300">
             Créer un compte
           </Link>
-        </p>
-      </form>
+        </div>
+
+        <div className="mt-6 text-xs text-white/50">
+          Retour{" "}
+          <Link to={ROUTES.public.landing} className="text-white/70 hover:text-white">
+            Landing
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
