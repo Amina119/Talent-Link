@@ -3,12 +3,10 @@ import Button from "../../components/ui/Button";
 import Badge from "../../components/ui/Badge";
 import { toast } from "../../store/toast";
 
-type Q = {
-  id: string;
-  question: string;
-  choices: { id: string; label: string; correct: boolean }[];
-};
+type Choice = { id: string; label: string; correct: boolean };
+type Q = { id: string; question: string; choices: Choice[] };
 
+// Mock 10 questions pour MVP
 const QUESTIONS: Q[] = [
   {
     id: "q1",
@@ -35,6 +33,69 @@ const QUESTIONS: Q[] = [
       { id: "a", label: "Déploiement plus simple qu’un microservices", correct: true },
       { id: "b", label: "Nécessite un API Gateway", correct: false },
       { id: "c", label: "Oblige plusieurs bases de données", correct: false },
+    ],
+  },
+  {
+    id: "q4",
+    question: "TypeScript est utile pour :",
+    choices: [
+      { id: "a", label: "Écrire du CSS plus rapidement", correct: false },
+      { id: "b", label: "Ajouter un typage statique à JavaScript", correct: true },
+      { id: "c", label: "Gérer les bases de données", correct: false },
+    ],
+  },
+  {
+    id: "q5",
+    question: "React utilise :",
+    choices: [
+      { id: "a", label: "Un Virtual DOM", correct: true },
+      { id: "b", label: "Un ORM", correct: false },
+      { id: "c", label: "Un serveur GraphQL", correct: false },
+    ],
+  },
+  {
+    id: "q6",
+    question: "FastAPI est principalement utilisé pour :",
+    choices: [
+      { id: "a", label: "Créer des APIs backend rapides", correct: true },
+      { id: "b", label: "Faire du design UI/UX", correct: false },
+      { id: "c", label: "Compiler du TypeScript", correct: false },
+    ],
+  },
+  {
+    id: "q7",
+    question: "RBAC permet de gérer :",
+    choices: [
+      { id: "a", label: "Les rôles et permissions des utilisateurs", correct: true },
+      { id: "b", label: "La crédibilité des talents", correct: false },
+      { id: "c", label: "Les notifications", correct: false },
+    ],
+  },
+  {
+    id: "q8",
+    question: "Quel est l’objectif d’une évaluation MVP ?",
+    choices: [
+      { id: "a", label: "Augmenter la crédibilité via un score", correct: true },
+      { id: "b", label: "Déployer l’application", correct: false },
+      { id: "c", label: "Envoyer des notifications", correct: false },
+    ],
+  },
+  {
+    id: "q9",
+    question: "Une bonne pratique UX :",
+    choices: [
+      { id: "a", label: "Mettre l’utilisateur au centre du design", correct: true },
+      { id: "b", label: "Ignorer les retours utilisateurs", correct: false },
+      { id: "c", label: "Multiplier les pop-ups", correct: false },
+    ],
+  },
+  {
+    id: "q10",
+    question: "Un test de type ‘White Box’ concerne :",
+    choices: [
+      { id: "a", label: "Le code interne et la logique", correct: true },
+      { id: "b", label: "La documentation marketing", correct: false },
+      { id: "c", label: "La mise en page CSS", correct: false },
     ],
   },
 ];
@@ -66,6 +127,7 @@ export default function Assessments() {
 
   return (
     <div>
+      {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl">Assessments</h1>
@@ -73,7 +135,6 @@ export default function Assessments() {
             Mini-évaluation (MVP). Objectif : augmenter la crédibilité via des scores.
           </p>
         </div>
-
         <div className="rounded-3xl border border-white/10 bg-white/5 p-4 text-right">
           <div className="text-xs text-white/60">Score</div>
           <div className="mt-1 text-3xl font-semibold">{submitted ? `${scorePct}%` : "—"}</div>
@@ -85,6 +146,7 @@ export default function Assessments() {
         </div>
       </div>
 
+      {/* Questions */}
       <div className="mt-6 space-y-4">
         {QUESTIONS.map((q, idx) => (
           <div key={q.id} className="rounded-3xl border border-white/10 bg-white/5 p-6">
@@ -131,6 +193,7 @@ export default function Assessments() {
         ))}
       </div>
 
+      {/* Actions */}
       <div className="mt-6 flex flex-wrap gap-3">
         {!submitted ? (
           <>

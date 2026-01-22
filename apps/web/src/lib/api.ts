@@ -27,7 +27,20 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
     headers.set("Authorization", `Bearer ${token}`);
   }
 
-  const res = await fetch(url, { ...init, headers });
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      ...init,
+      headers,
+      
+    });
+  } catch (e: any) {
+    
+    throw {
+      status: 0,
+      message: e?.message || "Failed to fetch (réseau/CORS/serveur down)",
+    } as ApiError;
+  }
 
   if (!res.ok) {
     const text = await res.text();
@@ -39,8 +52,9 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
 
       if (typeof detail === "string") msg = detail;
       else if (Array.isArray(detail)) msg = detail?.[0]?.msg || JSON.stringify(detail);
-      else msg = msg;
-    } catch {}
+    } catch {
+      
+    }
 
     throw { status: res.status, message: msg } as ApiError;
   }
@@ -55,6 +69,5 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
 
   return JSON.parse(body) as T;
 }
-
 
 export const api = apiFetch;

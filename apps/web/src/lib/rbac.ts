@@ -1,15 +1,29 @@
+import type { AuthUser } from "./auth";
 import { useAuthStore } from "../store/authStore";
 
-export function getRole() {
-  return useAuthStore.getState().user?.role || "user";
+/**
+ * Récupère le rôle de l'utilisateur.
+ * @param user Optionnel. Si absent, utilise le user du store.
+ */
+export function getRole(user?: AuthUser): string {
+  const u = user || useAuthStore.getState().user;
+  return u?.role || "user";
 }
 
-export function hasPerm(perm: string) {
-  const perms = useAuthStore.getState().user?.permissions || [];
+/**
+ * Vérifie si l'utilisateur a une permission donnée.
+ * @param user Optionnel. Si absent, utilise le user du store.
+ */
+export function hasPerm(user: AuthUser | undefined, perm: string): boolean {
+  const perms = user?.permissions || useAuthStore.getState().user?.permissions || [];
   return perms.includes(perm);
 }
 
-export function isAdmin() {
-  const role = getRole();
-  return role === "admin" || hasPerm("admin:all");
+/**
+ * Vérifie si l'utilisateur est admin.
+ * @param user Optionnel. Si absent, utilise le user du store.
+ */
+export function isAdmin(user?: AuthUser): boolean {
+  const role = getRole(user);
+  return role === "admin" || hasPerm(user, "admin:all");
 }

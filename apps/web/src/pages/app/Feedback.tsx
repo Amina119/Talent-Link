@@ -32,7 +32,7 @@ const seed: FeedbackItem[] = [
   },
 ];
 
-function Stars({ n }: { n: number }) {
+export function Stars({ n }: { n: number }) {
   return (
     <div className="flex gap-1">
       {Array.from({ length: 5 }).map((_, i) => (
@@ -66,8 +66,8 @@ export default function Feedback() {
       return;
     }
 
-    const it: FeedbackItem = {
-      id: Math.random().toString(36).slice(2),
+    const newFeedback: FeedbackItem = {
+      id: crypto.randomUUID(), // ID unique sécurisé
       author: author.trim(),
       project: project.trim(),
       rating,
@@ -75,7 +75,7 @@ export default function Feedback() {
       createdAt: new Date().toISOString().slice(0, 10),
     };
 
-    setItems((x) => [it, ...x]);
+    setItems((prev) => [newFeedback, ...prev]);
     setAuthor("");
     setProject("");
     setRating(5);
@@ -86,6 +86,7 @@ export default function Feedback() {
 
   return (
     <div>
+      {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl">Feedback</h1>
@@ -93,7 +94,6 @@ export default function Feedback() {
             Notes & avis après collaboration (impacte la crédibilité).
           </p>
         </div>
-
         <div className="rounded-3xl border border-white/10 bg-white/5 p-4 text-right">
           <div className="text-xs text-white/60">Moyenne</div>
           <div className="mt-1 text-3xl font-semibold">{avg || "—"}</div>
@@ -104,10 +104,9 @@ export default function Feedback() {
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
-        {/* Form */}
+        {/* Formulaire */}
         <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
           <div className="text-lg font-semibold">Ajouter un feedback</div>
-
           <div className="mt-4 space-y-3">
             <Input
               label="Auteur"
@@ -115,14 +114,12 @@ export default function Feedback() {
               value={author}
               onChange={(e) => setAuthor(e.target.value)}
             />
-
             <Input
               label="Projet"
               placeholder="ex: Plateforme e-learning"
               value={project}
               onChange={(e) => setProject(e.target.value)}
             />
-
             <label className="block">
               <div className="mb-1 text-xs font-medium text-white/70">Note</div>
               <div className="flex gap-2">
@@ -140,7 +137,6 @@ export default function Feedback() {
                 ))}
               </div>
             </label>
-
             <label className="block">
               <div className="mb-1 text-xs font-medium text-white/70">Commentaire</div>
               <textarea
@@ -153,15 +149,19 @@ export default function Feedback() {
                 Astuce: détaille le sérieux, la communication, la qualité du travail.
               </div>
             </label>
-
             <Button className="w-full" onClick={add} disabled={!canSubmit}>
               Publier
             </Button>
           </div>
         </div>
 
-        {/* List */}
+        {/* Liste des feedbacks */}
         <div className="lg:col-span-2 space-y-3">
+          {items.length === 0 && (
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-white/70">
+              Aucun feedback pour l'instant.
+            </div>
+          )}
           {items.map((f) => (
             <div key={f.id} className="rounded-3xl border border-white/10 bg-white/5 p-6">
               <div className="flex items-start justify-between gap-4">
@@ -174,7 +174,6 @@ export default function Feedback() {
                   <div className="mt-1 text-xs text-white/60">{f.createdAt}</div>
                 </div>
               </div>
-
               <div className="mt-3 text-white/80">{f.comment}</div>
             </div>
           ))}

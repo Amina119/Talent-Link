@@ -8,3 +8,6 @@ class MatchingConfig(Base):
     id: Mapped[str] = mapped_column(String, primary_key=True)
     w_skills: Mapped[float] = mapped_column(Float, default=0.6)
     w_credibility: Mapped[float] = mapped_column(Float, default=0.4)
+    w_location: Mapped[float] = mapped_column(Float, default=0.2)  # poids pour lieu
+    w_language: Mapped[float] = mapped_column(Float, default=0.1)  # poids pour langues
+    w_budget: Mapped[float] = mapped_column(Float, default=0.2)    # poids pour budget/niveau

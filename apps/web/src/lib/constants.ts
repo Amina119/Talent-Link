@@ -1,7 +1,15 @@
+/* =========================
+   APP
+========================= */
+
 export const APP = {
   name: "TalentLink",
   tagline: "Build your dream team with smart matching.",
 };
+
+/* =========================
+   ROUTES
+========================= */
 
 export const ROUTES = {
   public: {
@@ -20,7 +28,7 @@ export const ROUTES = {
     talents: "/app/talents",
     projects: "/app/projects",
     teams: "/app/teams",
-    messages: "/app/Messages",
+    messages: "/app/messages",
     notifications: "/app/notifications",
     assessments: "/app/assessments",
     feedback: "/app/feedback",
@@ -34,6 +42,10 @@ export const ROUTES = {
   },
 };
 
+/* =========================
+   PERMISSIONS (RBAC)
+========================= */
+
 export const PERMS = {
   ADMIN_USERS: "ADMIN_USERS",
   ADMIN_AUDIT: "ADMIN_AUDIT",
@@ -42,6 +54,11 @@ export const PERMS = {
 } as const;
 
 export type PermissionCode = (typeof PERMS)[keyof typeof PERMS];
+
+/* =========================
+   NAVIGATION
+========================= */
+
 export const NAV = {
   user: [
     { to: ROUTES.app.dashboard, label: "Dashboard" },
@@ -60,6 +77,10 @@ export const NAV = {
   ],
 };
 
+/* =========================
+   UI / LIMITES
+========================= */
+
 export const UI = {
   motion: {
     fast: 0.15,
@@ -73,7 +94,13 @@ export const UI = {
     bioMax: 800,
     nameMax: 120,
     passwordMin: 8,
+    skillsMax: 20, // ✅ AJOUTÉ (corrige les erreurs TS)
   },
 };
+
+/* =========================
+   DISPONIBILITÉ
+========================= */
+
 export const AVAILABILITY = ["available", "busy", "part-time"] as const;
 export type Availability = (typeof AVAILABILITY)[number];

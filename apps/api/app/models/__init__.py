@@ -12,3 +12,6 @@ from .feedback import Feedback
 from .github_account import GitHubAccount
 from .matching_config import MatchingConfig
 from .audit_log import AuditLog
+from .user import User
+from .project import Project
+from .project_team import ProjectTeam 

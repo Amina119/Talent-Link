@@ -16,7 +16,7 @@ export default function Settings() {
           <h1 className="font-display text-3xl">Paramètres</h1>
           <p className="mt-2 text-white/70">Gère ton compte, ta session et tes préférences.</p>
         </div>
-        <Badge>{role}</Badge>
+        <Badge className="uppercase">{role}</Badge>
       </div>
 
       {/* Sections */}
@@ -61,7 +61,9 @@ export default function Settings() {
             </Button>
           </div>
 
-          <div className="mt-4 text-xs text-white/50">Pour l’instant, la sécurité repose sur JWT + HTTPS.</div>
+          <div className="mt-4 text-xs text-white/50">
+            Pour l’instant, la sécurité repose sur JWT + HTTPS.
+          </div>
         </section>
 
         {/* Préférences */}
@@ -70,7 +72,10 @@ export default function Settings() {
           <p className="mt-1 text-sm text-white/60">Personnalisation de l’interface (MVP).</p>
 
           <div className="mt-4 flex flex-wrap gap-3">
-            <Button variant="ghost" onClick={() => toast.info("Mode clair/sombre : déjà géré automatiquement.")}>
+            <Button
+              variant="ghost"
+              onClick={() => toast.info("Mode clair/sombre : déjà géré automatiquement.")}
+            >
               Thème (auto)
             </Button>
 
@@ -79,7 +84,9 @@ export default function Settings() {
             </Button>
           </div>
 
-          <div className="mt-4 text-xs text-white/50">Ces options sont prévues pour les prochaines itérations.</div>
+          <div className="mt-4 text-xs text-white/50">
+            Ces options sont prévues pour les prochaines itérations.
+          </div>
         </section>
       </div>
     </div>

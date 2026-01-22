@@ -1,45 +1,51 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useState } from "react";
 import Button from "../../components/ui/Button";
-import { apiFetch } from "../../lib/api";
+import Badge from "../../components/ui/Badge";
 
-type U = { id: number; email: string; full_name: string; role: string; is_active: boolean };
+type User = {
+  id: string;
+  fullName: string;
+  email: string;
+  role: string;
+  status: string;
+};
+
+const seed: User[] = [
+  { id: "u1", fullName: "Jean Dupont", email: "jean@mail.com", role: "User", status: "Actif" },
+  { id: "u2", fullName: "Amina K.", email: "amina@mail.com", role: "Admin", status: "Actif" },
+];
 
 export default function UsersAdmin() {
-  const q = useQuery({ queryKey: ["admin-users"], queryFn: () => apiFetch<U[]>("/admin/users") });
+  const [users, setUsers] = useState<User[]>(seed);
 
-  const suspend = useMutation({
-    mutationFn: (id: number) => apiFetch(`/admin/users/${id}/suspend`, { method: "POST" }),
-    onSuccess: () => q.refetch(),
-  });
-
-  const restore = useMutation({
-    mutationFn: (id: number) => apiFetch(`/admin/users/${id}/restore`, { method: "POST" }),
-    onSuccess: () => q.refetch(),
-  });
+  function toggleStatus(id: string) {
+    setUsers((u) =>
+      u.map((user) =>
+        user.id === id ? { ...user, status: user.status === "Actif" ? "Banni" : "Actif" } : user
+      )
+    );
+  }
 
   return (
-    <div>
-      <h1 className="font-display text-3xl">Admin • Utilisateurs</h1>
-      <p className="mt-2 text-white/70">Suspendre / réactiver des comptes.</p>
+    <div className="max-w-6xl mx-auto py-8">
+      <h1 className="font-display text-3xl font-bold text-white mb-4">Gestion des utilisateurs</h1>
 
-      <div className="mt-6 rounded-3xl border border-white/10 bg-white/5 p-5">
-        {q.isLoading ? "Chargement..." : q.isError ? "Erreur" : (
-          <div className="space-y-3">
-            {q.data!.map(u => (
-              <div key={u.id} className="flex items-center justify-between rounded-2xl bg-white/5 p-3">
-                <div>
-                  <div className="font-medium">{u.full_name || u.email}</div>
-                  <div className="text-xs text-white/60">{u.email} • role={u.role} • actif={String(u.is_active)}</div>
-                </div>
-                {u.is_active ? (
-                  <Button loading={suspend.isPending} onClick={() => suspend.mutate(u.id)}>Suspendre</Button>
-                ) : (
-                  <Button variant="secondary" loading={restore.isPending} onClick={() => restore.mutate(u.id)}>Réactiver</Button>
-                )}
-              </div>
-            ))}
+      <div className="space-y-3">
+        {users.map((u) => (
+          <div
+            key={u.id}
+            className="rounded-3xl border border-white/10 bg-white/5 p-6 flex justify-between items-center"
+          >
+            <div>
+              <div className="text-lg font-semibold text-white">{u.fullName}</div>
+              <div className="text-sm text-white/60">{u.email}</div>
+              <Badge className="mt-1">{u.role}</Badge>
+            </div>
+            <Button variant="secondary" onClick={() => toggleStatus(u.id)}>
+              {u.status === "Actif" ? "Bannir" : "Réactiver"}
+            </Button>
           </div>
-        )}
+        ))}
       </div>
     </div>
   );

@@ -1,9 +1,11 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
 import Badge from "../../components/ui/Badge";
 import { toast } from "../../store/toast";
 
+// Mocked projects pour MVP
 type Project = {
   id: string;
   title: string;
@@ -11,21 +13,28 @@ type Project = {
   skills: string[];
   budget?: string;
   updatedAt: string;
+  matches: number; // nombre de profils recommandés
 };
 
-const seed: Project[] = [
-  { id: "p1", title: "Projet Alpha", status: "Ouvert", skills: ["React", "FastAPI", "PostgreSQL"], budget: "300$", updatedAt: "2026-01-02" },
-  { id: "p2", title: "Landing TalentLink", status: "En cours", skills: ["UI/UX", "Tailwind"], budget: "—", updatedAt: "2025-12-28" },
-];
+const MOCK_PROJECTS: Project[] = Array.from({ length: 5 }, (_, i) => ({
+  id: `p${i + 1}`,
+  title: `Projet ${["Alpha","Beta","Gamma","Delta","Epsilon"][i]}`,
+  status: ["Ouvert", "En cours", "Clôturé"][i % 3] as Project["status"],
+  skills: ["React","FastAPI","PostgreSQL","UI/UX"].slice(0, 2 + (i % 3)),
+  budget: `${200 + i * 100}$`,
+  updatedAt: `2026-01-${10 - i}`,
+  matches: 25, // MVP: toujours 25 talents recommandés
+}));
 
 export default function ProjectsList() {
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<"Tous" | Project["status"]>("Tous");
-  const [items] = useState<Project[]>(seed);
+  const [projects] = useState<Project[]>(MOCK_PROJECTS);
+  const navigate = useNavigate();
 
   const filtered = useMemo(() => {
     const query = q.trim().toLowerCase();
-    return items.filter((p) => {
+    return projects.filter((p) => {
       const okQ =
         !query ||
         p.title.toLowerCase().includes(query) ||
@@ -33,21 +42,21 @@ export default function ProjectsList() {
       const okS = status === "Tous" ? true : p.status === status;
       return okQ && okS;
     });
-  }, [items, q, status]);
+  }, [projects, q, status]);
 
   return (
     <div>
+      {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl">Projets</h1>
           <p className="mt-2 text-white/70">Crée, gère et lance le matching.</p>
         </div>
 
-        <Button onClick={() => toast.info("Créer projet : page /app/projects/create (à relier).")}>
-          + Nouveau
-        </Button>
+        <Button onClick={() => navigate("/app/projects/create")}>+ Nouveau</Button>
       </div>
 
+      {/* Filtrage */}
       <div className="mt-6 rounded-3xl border border-white/10 bg-white/5 p-4">
         <div className="grid gap-3 md:grid-cols-3">
           <Input
@@ -55,7 +64,6 @@ export default function ProjectsList() {
             value={q}
             onChange={(e) => setQ(e.target.value)}
           />
-
           <label className="block">
             <div className="mb-1 text-xs font-medium text-white/70">Statut</div>
             <select
@@ -69,19 +77,10 @@ export default function ProjectsList() {
               <option value="Clôturé">Clôturé</option>
             </select>
           </label>
-
-          <div className="flex items-end gap-2">
-            <Button
-              variant="secondary"
-              className="w-full"
-              onClick={() => toast.info("Import/Export : bonus DevOps/CSV à venir.")}
-            >
-              Import/Export
-            </Button>
-          </div>
         </div>
       </div>
 
+      {/* Liste projets */}
       <div className="mt-6 grid gap-4 lg:grid-cols-2">
         {filtered.map((p) => (
           <div key={p.id} className="rounded-3xl border border-white/10 bg-white/5 p-6">
@@ -101,12 +100,16 @@ export default function ProjectsList() {
 
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
               <div className="text-sm text-white/60">Budget : {p.budget || "—"}</div>
-
               <div className="flex gap-2">
-                <Button variant="secondary" onClick={() => toast.info("Détails projet : /app/projects/:id (à relier).")}>
+                <Button
+                  variant="secondary"
+                  onClick={() => navigate(`/app/projects/${p.id}`)}
+                >
                   Détails
                 </Button>
-                <Button onClick={() => toast.success("Matching lancé ✅ (MVP)")}>
+                <Button
+                  onClick={() => navigate(`/app/projects/${p.id}/matching`)}
+                >
                   Matching
                 </Button>
               </div>
